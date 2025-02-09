@@ -1,0 +1,36 @@
+﻿namespace SamplePlugin.Collector;
+
+public enum HousingTag
+{
+    None = 0,
+    Emporium = 1,
+    Boutique = 2,
+    DesignerHome = 3,
+    MessageBook = 4,
+    Tavern = 5,
+    Eatery = 6,
+    ImmersiveExperience = 7,
+    Cafe = 8,
+    Aquarium = 9,
+    Sanctuary = 10,
+    Venue = 11,
+    Florist = 12,
+    Unknown13 = 13,
+    Library = 14,
+    PhotoStudio = 15,
+    HauntedHouse = 16,
+    Atelier = 17,
+    Bathhouse = 18,
+    Garden = 19,
+    FarEastern = 20,
+    VisitorsWelcome = 21,
+    UnderConstruction = 23,
+    Bakery = 22,
+    ConcertHall = 24,
+    Unknown25 = 25,
+    Unknown26 = 26,
+    Unknown27 = 27,
+    Unknown28 = 28,
+    Unknown29 = 29,
+    Unknown30 = 30
+}

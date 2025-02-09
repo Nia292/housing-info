@@ -1,12 +1,10 @@
 {
-  "Author": "your name here",
-  "Name": "Sample Plugin",
-  "Punchline": "A short one-liner that shows up in /xlplugins.",
-  "Description": "A description that shows up in /xlplugins. List any major slash-command(s).",
+  "Author": "Nia",
+  "Name": "Housing Database",
+  "Punchline": "A simple, local-only housing database",
+  "Description": "Do /houses to open the housing list, do /visitlist to open the list of houses you want to visit",
   "ApplicableVersion": "any",
   "Tags": [
-    "sample",
-    "plugin",
-    "goats"
+    "housing"
   ]
 }
