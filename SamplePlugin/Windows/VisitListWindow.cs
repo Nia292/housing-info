@@ -34,7 +34,7 @@ public class VisitListWindow : Window, IDisposable
             foreach (var entry in pluginDataStorage.GetHousesToVisit())
             {
                 var world = InterfaceUtils.TranslateWorld(entry.HouseId.WorldId);
-                var ward = InterfaceUtils.TranslateLandId(entry.HouseId.LandId);
+                var ward = InterfaceUtils.TranslateTerritoryTypeId(entry.HouseId.TerritoryTypeId);
                 ImGui.PushID(entry.HouseId.ToString());
                 ImGui.TextUnformatted($"{world} - {ward} - W{entry.HouseId.WardNumber} P{entry.HouseId.PlotNumber} ({entry.HouseMetaData.EstateOwnerName})");
                 ImGui.SameLine();

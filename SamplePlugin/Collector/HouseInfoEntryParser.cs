@@ -17,9 +17,8 @@ public static class HouseInfoEntryParser
 
         for (var i = 0; i < 60; i++)
         {
-            var houseId = new HouseId(landIdent.WorldId, landIdent.LandId, landIdent.WardNumber, i + 1);
-            var territoryTypeId = landIdent.TerritoryTypeId;
-            // skip house price
+            var houseId = new HouseId(landIdent.WorldId, landIdent.TerritoryTypeId, landIdent.WardNumber, i + 1);
+            // skip house price0
             binaryReader.ReadUInt32();
             var infoFlags = (HousingFlags)binaryReader.ReadByte();
             var tagA = (HousingTag)binaryReader.ReadSByte();
@@ -33,7 +32,7 @@ public static class HouseInfoEntryParser
                 estateOwnerName = "";
             }
 
-            var houseMetaInfo = new HouseMetaData(territoryTypeId, estateOwnerName, infoFlags, tagA, tagB, tagC);
+            var houseMetaInfo = new HouseMetaData(estateOwnerName, infoFlags, tagA, tagB, tagC);
             var houseInfoEntry = new HouseInfoEntry()
             {
                 HouseId = houseId,

@@ -3,12 +3,12 @@ using Newtonsoft.Json;
 
 namespace SamplePlugin.Collector;
 
-public class HouseId(short worldId, short landId, short wardNumber, int plotNumber)
+public class HouseId(short worldId, short territoryTypeId, short wardNumber, int plotNumber)
 {
     [JsonProperty]
     public readonly short WorldId = worldId;
     [JsonProperty]
-    public readonly short LandId = landId;
+    public readonly short TerritoryTypeId =  territoryTypeId;
     [JsonProperty]
     public readonly short WardNumber = wardNumber;
     [JsonProperty]
@@ -16,7 +16,7 @@ public class HouseId(short worldId, short landId, short wardNumber, int plotNumb
 
     protected bool Equals(HouseId other)
     {
-        return WorldId == other.WorldId && LandId == other.LandId && WardNumber == other.WardNumber && PlotNumber == other.PlotNumber;
+        return WorldId == other.WorldId && TerritoryTypeId == other.TerritoryTypeId && WardNumber == other.WardNumber && PlotNumber == other.PlotNumber;
     }
 
     public override bool Equals(object? obj)
@@ -29,11 +29,11 @@ public class HouseId(short worldId, short landId, short wardNumber, int plotNumb
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(WorldId, LandId, WardNumber, PlotNumber);
+        return HashCode.Combine(WorldId, TerritoryTypeId, WardNumber, PlotNumber);
     }
 
     public override string ToString()
     {
-        return $"${WorldId}-{LandId}-{WardNumber}-{PlotNumber}";
+        return $"${WorldId}-{TerritoryTypeId}-{WardNumber}-{PlotNumber}";
     }
 }

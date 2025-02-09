@@ -6,14 +6,32 @@ namespace SamplePlugin.Windows;
 
 public class InterfaceUtils
 {
-    
-    public static string TranslateLandId(short landId)
+    public static string TranslateTerritoryTypeId(short landId)
     {
-        if (landId == 0)
+        if (landId == -1)
+        {
+            return "";
+        }
+        
+        if (landId == 341)
         {
             return "The Goblet";
         }
+        
+        if (landId == 340)
+        {
+            return "The Lavender Beds";
+        }
 
+        if (landId == 339)
+        {
+            return "Mist";
+        }
+
+        if (landId == 979)
+        {
+            return "Empyreum";
+        }
         return landId.ToString();
     }
 
@@ -23,16 +41,18 @@ public class InterfaceUtils
         {
             return "";
         }
-        Plugin.DataManager.GetExcelSheet<World>().TryGetRow((uint) worldId, out var worldRow);
+
+        Plugin.DataManager.GetExcelSheet<World>().TryGetRow((uint)worldId, out var worldRow);
         return worldRow.Name.ExtractText();
     }
-    
+
     public static string TranslateHousingTag(HousingTag? tag)
     {
         if (tag == null)
         {
             return "";
         }
+
         return tag switch
         {
             HousingTag.None => "",

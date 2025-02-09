@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Dalamud.IoC;
+using Dalamud.Plugin.Services;
+using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using Newtonsoft.Json;
 using SamplePlugin.Collector;
 
@@ -15,9 +18,20 @@ public class PluginDataStorage
     [JsonProperty]
     private readonly PaginationInfo paginationInfo = new();
 
+    [JsonProperty]
     public HousingTag? TagFilter { get; private set; }
-    public string GlobalFilter = "";
+    [JsonProperty]
+    public HousingTag? TagFilter2 { get; private set; }
+    [JsonProperty]
+    public HousingTag? TagFilter3 { get; private set; }
+    [JsonProperty]
+    public string OwnerFilter = "";
+    [JsonProperty]
+    public short? WardFilter = -1;
+    public short? WardNumberFilter = null;
+    [JsonProperty]
     public short WorldIdFilter = -1;
+    [JsonProperty]
     public bool OnlyOpen = false;
 
     [JsonIgnore]
@@ -26,12 +40,15 @@ public class PluginDataStorage
     public int CurrentPageCount = 0;
     [JsonIgnore]
     public int CurrentAvailableEntries = 0;
+    [JsonIgnore]
+    public IPluginLog log;
 
-    public static PluginDataStorage Instantiate()
+    public static PluginDataStorage Instantiate(IPluginLog log)
     {
         var loaded = Load();
         var res = loaded ?? new PluginDataStorage();
         res.RecalculateEntries();
+        res.log = log;
         return res;
     }
 
@@ -42,7 +59,7 @@ public class PluginDataStorage
         RecalculateEntries();
     }
 
-    public void SetTagFilter(HousingTag filter)
+    public void SetTagFilter(HousingTag? filter)
     {
         if (filter == HousingTag.None)
         {
@@ -56,6 +73,37 @@ public class PluginDataStorage
         Persist();
         RecalculateEntries();
     }
+    
+    public void SetTagFilter2(HousingTag? filter)
+    {
+        if (filter == HousingTag.None)
+        {
+            TagFilter2 = null;
+        }
+        else
+        {
+            TagFilter2 = filter;
+        }
+
+        Persist();
+        RecalculateEntries();
+    }
+    
+    public void SetTagFilter3(HousingTag? filter)
+    {
+        if (filter == HousingTag.None)
+        {
+            TagFilter3 = null;
+        }
+        else
+        {
+            TagFilter3 = filter;
+        }
+
+        Persist();
+        RecalculateEntries();
+    }
+
 
     public void SetWorldIdFilter(short worldId)
     {
@@ -63,13 +111,28 @@ public class PluginDataStorage
         Persist();
         RecalculateEntries();
     }
-
-    public void SetGlobalFilter(string globalFilter)
+    
+    public void SetWardNumberFilter(short? wardNumber)
     {
-        GlobalFilter = globalFilter;
+        WardNumberFilter = wardNumber;
         Persist();
         RecalculateEntries();
     }
+
+    public void SetOwnerFilter(string ownerFilter)
+    {
+        OwnerFilter = ownerFilter;
+        Persist();
+        RecalculateEntries();
+    }
+    
+    public void SetWardFilter(short wardFilter)
+    {
+        WardFilter = wardFilter;
+        Persist();
+        RecalculateEntries();
+    }
+
     
     public void SetOpenFilter(bool onlyOpen)
     {
@@ -150,7 +213,7 @@ public class PluginDataStorage
     {
         return houseInfoEntries.Where(entry => entry.Visit)
                                .OrderBy(entry => entry.HouseId.WorldId)
-                               .ThenBy(entry => entry.HouseId.LandId)
+                               .ThenBy(entry => entry.HouseId.TerritoryTypeId)
                                .ThenBy(entry => entry.HouseId.WardNumber)
                                .ThenBy(entry => entry.HouseId.PlotNumber)
                                .ToList();
@@ -218,13 +281,31 @@ public class PluginDataStorage
     {
         return houseInfoEntries.Select(entry => entry.HouseId.WorldId).ToHashSet();
     }
+    
+    public HashSet<short> GetAvailableWards()
+    {
+        return houseInfoEntries.Select(entry => entry.HouseId.TerritoryTypeId).ToHashSet();
+    }
 
     private void RecalculateEntries()
     {
         var filtered = houseInfoEntries
                        .Where(entry => entry.HouseMetaData.EstateOwnerName.ToLower()
-                                            .Contains(GlobalFilter.ToLower()))
-                       .Where(entry => entry.HasTag(TagFilter))
+                                            .Contains(OwnerFilter.ToLower()))
+                       .Where(entry =>
+                       {
+                           bool hasTag1 = TagFilter == null || entry.HasTag(TagFilter);
+                           bool hasTag2 = TagFilter2 == null || entry.HasTag(TagFilter2);
+                           return hasTag1 && hasTag2;
+                       })
+                       .Where(entry =>
+                       {
+                           if (WardFilter == -1  || WardFilter == null)
+                           {
+                               return true;
+                           }
+                           return entry.HouseId.TerritoryTypeId == WardFilter;
+                       })
                        .Where(entry =>
                        {
                            if (WorldIdFilter == -1)
@@ -244,7 +325,7 @@ public class PluginDataStorage
                            return true;
                        })
                        .OrderBy(entry => entry.HouseId.WorldId)
-                       .ThenBy(entry => entry.HouseId.LandId)
+                       .ThenBy(entry => entry.HouseId.TerritoryTypeId)
                        .ThenBy(entry => entry.HouseId.WardNumber)
                        .ThenBy(entry => entry.HouseId.PlotNumber)
                        .ToList();

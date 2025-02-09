@@ -34,7 +34,7 @@ public sealed class Plugin : IDalamudPlugin
 
     public Plugin()
     {
-        pluginDataStorage = PluginDataStorage.Instantiate();
+        pluginDataStorage = PluginDataStorage.Instantiate(Log);
         Configuration = PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
 
         ConfigWindow = new ConfigWindow(this);

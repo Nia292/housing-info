@@ -27,19 +27,10 @@ public class AllDataView
             // Check if this child is drawing
             if (child.Success)
             {
-                var searchString = pluginDataStorage.GlobalFilter;
-                ImGui.InputText("Search Everywhere", ref searchString, 20);
-                if (searchString != pluginDataStorage.GlobalFilter)
-                {
-                    pluginDataStorage.SetGlobalFilter(searchString);
-                }
-                ImGui.SameLine();
                 if (ImGui.Button("Visit List"))
                 {
                     plugin.ToggleVisitList();
                 }
-
-                // DrawTagSelectBox("tag-filter", "Filter for Tag", pluginDataStorage.TagFilter, tag => pluginDataStorage.SetTagFilter(tag));
                 var flags = ImGuiTableFlags.RowBg & ImGuiTableFlags.Borders
                                                   & ImGuiTableFlags.BordersH
                                                   & ImGuiTableFlags.BordersOuterH
@@ -48,7 +39,7 @@ public class AllDataView
                 if (ImGui.BeginTable("houses-table", 10, flags))
                 {
                     ImGui.TableSetupColumn("World", ImGuiTableColumnFlags.WidthFixed, 80);
-                    ImGui.TableSetupColumn("Area", ImGuiTableColumnFlags.WidthFixed, 70);
+                    ImGui.TableSetupColumn("Area", ImGuiTableColumnFlags.WidthFixed, 120);
                     ImGui.TableSetupColumn("Ward", ImGuiTableColumnFlags.WidthFixed, 45);
                     ImGui.TableSetupColumn("Plot", ImGuiTableColumnFlags.WidthFixed, 45);
                     ImGui.TableSetupColumn("Tags", ImGuiTableColumnFlags.WidthFixed, 400);
@@ -70,11 +61,16 @@ public class AllDataView
                     ImGui.PushID("Area");
                     ImGui.TableSetColumnIndex(1);
                     ImGui.TableHeader("Area");
+                    ImGui.SetNextItemWidth(120);
+                    var availableWards = pluginDataStorage.GetAvailableWards().ToList();
+                    availableWards.Add(-1);
+                    DrawWardSelectBox("ward-filter", pluginDataStorage.WardFilter, availableWards, pluginDataStorage.SetWardFilter);
                     ImGui.PopID();
 
                     ImGui.PushID("Ward");
                     ImGui.TableSetColumnIndex(2);
                     ImGui.TableHeader("Ward");
+                    ImGui.SetNextItemWidth(45);
                     ImGui.PopID();
 
                     ImGui.PushID("Plot");
@@ -85,9 +81,17 @@ public class AllDataView
                     ImGui.PushID("Tags");
                     ImGui.TableSetColumnIndex(4);
                     ImGui.TableHeader("Tags");
-                    ImGui.SetNextItemWidth(400);
-                    DrawTagSelectBox("tag-filter", "", pluginDataStorage.TagFilter,
+                    ImGui.SetNextItemWidth(130);
+                    DrawTagSelectBox("tag-filter-1", "", pluginDataStorage.TagFilter,
                                      tag => pluginDataStorage.SetTagFilter(tag));
+                    ImGui.SameLine();
+                    ImGui.SetNextItemWidth(130);
+                    DrawTagSelectBox("tag-filter-2", "", pluginDataStorage.TagFilter2,
+                                     tag => pluginDataStorage.SetTagFilter2(tag));
+                    ImGui.SameLine();
+                    ImGui.SetNextItemWidth(130);
+                    DrawTagSelectBox("tag-filter-3", "", pluginDataStorage.TagFilter3,
+                                     tag => pluginDataStorage.SetTagFilter3(tag));
                     ImGui.PopID();
                     
                     var onlyOpen = pluginDataStorage.OnlyOpen;
@@ -106,6 +110,12 @@ public class AllDataView
                     ImGui.PushID("Owner");
                     ImGui.TableSetColumnIndex(6);
                     ImGui.TableHeader("Owner");
+                    var ownerFilter = pluginDataStorage.OwnerFilter;
+                    ImGui.InputText("", ref ownerFilter, 20);
+                    if (ownerFilter != pluginDataStorage.OwnerFilter)
+                    {
+                        pluginDataStorage.SetOwnerFilter(ownerFilter);
+                    }
                     ImGui.PopID();
 
                     ImGui.PushID("Fav");
@@ -137,7 +147,7 @@ public class AllDataView
                         ImGui.TableSetColumnIndex(0);
                         ImGui.TextUnformatted(InterfaceUtils.TranslateWorld(house.HouseId.WorldId));
                         ImGui.TableSetColumnIndex(1);
-                        ImGui.TextUnformatted(InterfaceUtils.TranslateLandId(house.HouseId.LandId));
+                        ImGui.TextUnformatted(InterfaceUtils.TranslateTerritoryTypeId(house.HouseId.TerritoryTypeId));
                         ImGui.TableSetColumnIndex(2);
                         ImGui.TextUnformatted(house.HouseId.WardNumber.ToString());
                         ImGui.TableSetColumnIndex(3);
@@ -150,7 +160,8 @@ public class AllDataView
                         ImGui.TextUnformatted(house.IsOpen() ? "x" : "");
                         
                         ImGui.TableSetColumnIndex(6);
-                        ImGui.TextUnformatted(house.HouseMetaData.EstateOwnerName);
+                        ImGui.TextUnformatted(house.GetFormattedOwnerName());
+                        
                         
                         ImGui.TableSetColumnIndex(7);
                         var favorite = house.Favorite;
@@ -227,32 +238,44 @@ public class AllDataView
         ImGui.PopID();
     }
 
-    public void DrawTagSelectBox(string id, string label, HousingTag? selectedTag, Action<HousingTag> onChange)
+    public void DrawSelectBox<TSelectBoxValue>(string id, string label, TSelectBoxValue value, List<TSelectBoxValue> availableValues, Func<TSelectBoxValue?, string> renderFn, Action<TSelectBoxValue> onChange)
     {
         ImGui.PushID(id);
-        if (ImGui.BeginCombo(label, InterfaceUtils.TranslateHousingTag(selectedTag)))
+        if (ImGui.BeginCombo(label, renderFn(value)))
         {
-            var toDisplay = ((HousingTag[])Enum.GetValues(typeof(HousingTag))).ToList()
-                                                              .OrderBy(tag => InterfaceUtils.TranslateHousingTag(tag))
-                                                              .ToList();
-            foreach (HousingTag tag in toDisplay)
+            foreach (var tag in availableValues)
             {
-                var isSelected = selectedTag == tag;
-                if (ImGui.Selectable(InterfaceUtils.TranslateHousingTag(tag), isSelected))
+                var isSelected = tag != null && tag.Equals(value);
+                if (ImGui.Selectable(renderFn(tag), isSelected))
                 {
                     onChange.Invoke(tag);
                 }
-
+        
                 if (isSelected)
                 {
                     ImGui.SetItemDefaultFocus();
                 }
             }
-
+        
             ImGui.EndCombo();
         }
 
         ImGui.PopID();
+    }
+
+    public void DrawTagSelectBox(string id, string label, HousingTag? selectedTag, Action<HousingTag> onChange)
+    {
+        var toDisplay = ((HousingTag[])Enum.GetValues(typeof(HousingTag))).ToList()
+                                                                           .OrderBy(tag => InterfaceUtils.TranslateHousingTag(tag))
+                                                                           .ToList();
+        var value = selectedTag ?? HousingTag.None;
+        DrawSelectBox(id, label, value, toDisplay, tag => InterfaceUtils.TranslateHousingTag(tag), onChange.Invoke);
+    }
+    
+    public void DrawWardSelectBox(string id, short? selectedWard, List<short> wards, Action<short> onChange)
+    {
+        var value = selectedWard ?? -1;
+        DrawSelectBox(id, "", value, wards, InterfaceUtils.TranslateTerritoryTypeId, onChange.Invoke);
     }
 
     public void DrawWorldSelectBox(string id, string label, short selectedWorld, Action<short> onSelectedWorldChange)

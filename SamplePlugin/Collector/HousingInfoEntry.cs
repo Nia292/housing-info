@@ -45,4 +45,28 @@ public class HouseInfoEntry
     {
         return !((HouseMetaData.InfoFlags & HousingFlags.VisitorsAllowed) == 0);
     }
+    
+    public bool IsOwned()
+    {
+        return !((HouseMetaData.InfoFlags & HousingFlags.PlotOwned) == 0);
+    }
+
+    
+    public bool IsFreeCompany()
+    {
+        return !((HouseMetaData.InfoFlags & HousingFlags.OwnedByFC) == 0);
+    }
+
+    public string GetFormattedOwnerName()
+    {
+        if (!IsOwned())
+        {
+            return "";
+        }
+        if (IsFreeCompany())
+        {
+            return $"<{HouseMetaData.EstateOwnerName}>";
+        }
+        return HouseMetaData.EstateOwnerName;
+    }
 }
