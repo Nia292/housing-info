@@ -1,11 +1,21 @@
 ﻿using System;
+using Dalamud.Bindings.ImGui;
 using Lumina.Excel.Sheets;
 using SamplePlugin.Collector;
+using Action = System.Action;
 
 namespace SamplePlugin.Windows;
 
-public class InterfaceUtils
+public static class InterfaceUtils
 {
+
+    public static void WithinId(string id, Action action)
+    {
+        ImGui.PushID(id);
+        action();
+        ImGui.PopID();
+    }
+    
     public static string TranslateTerritoryTypeId(short landId)
     {
         if (landId == -1)

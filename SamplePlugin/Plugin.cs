@@ -1,8 +1,15 @@
-﻿using Dalamud.Game.Command;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
+using Dalamud.Game.Addon.Lifecycle;
+using Dalamud.Game.Addon.Lifecycle.AddonArgTypes;
+using Dalamud.Game.Command;
 using Dalamud.Interface.Windowing;
 using Dalamud.IoC;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
+using FFXIVClientStructs.FFXIV.Component.GUI;
 using SamplePlugin.Collector;
 using SamplePlugin.Storage;
 using SamplePlugin.Windows;
@@ -11,13 +18,31 @@ namespace SamplePlugin;
 
 public sealed class Plugin : IDalamudPlugin
 {
-    [PluginService] internal static IDalamudPluginInterface PluginInterface { get; private set; } = null!;
-    [PluginService] internal static ITextureProvider TextureProvider { get; private set; } = null!;
-    [PluginService] internal static ICommandManager CommandManager { get; private set; } = null!;
-    [PluginService] internal static IClientState ClientState { get; private set; } = null!;
-    [PluginService] internal static IDataManager DataManager { get; private set; } = null!;
-    [PluginService] internal static IPluginLog Log { get; private set; } = null!;
-    [PluginService] internal static IGameInteropProvider InteropProvider { get; private set; } = null!;
+    [PluginService]
+    internal static IDalamudPluginInterface PluginInterface { get; private set; } = null!;
+
+    [PluginService]
+    internal static ITextureProvider TextureProvider { get; private set; } = null!;
+
+    [PluginService]
+    internal static ICommandManager CommandManager { get; private set; } = null!;
+
+    [PluginService]
+    internal static IClientState ClientState { get; private set; } = null!;
+
+    [PluginService]
+    internal static IDataManager DataManager { get; private set; } = null!;
+
+    [PluginService]
+    internal static IPluginLog Log { get; private set; } = null!;
+
+    [PluginService]
+    internal static IGameInteropProvider InteropProvider { get; private set; } = null!;
+
+    [PluginService]
+    internal static IAddonLifecycle AddonLifecycle { get; private set; } = null!;
+    [PluginService]
+    internal static IAddonEventManager EventManager { get; private set; } = null!;
 
     private const string CommandName = "/houses";
     private const string CommandNameVisitList = "/visitlist";
@@ -31,6 +56,8 @@ public sealed class Plugin : IDalamudPlugin
 
     private readonly WardObserver wardObserver;
     private readonly PluginDataStorage pluginDataStorage;
+
+    private readonly HashSet<string> alreadySeen = [];
 
     public Plugin()
     {
@@ -49,7 +76,7 @@ public sealed class Plugin : IDalamudPlugin
         {
             HelpMessage = "Opens the housing list."
         });
-        
+
         CommandManager.AddHandler(CommandNameVisitList, new CommandInfo(OnVisitListCommand)
         {
             HelpMessage = "Opens the visit list"
@@ -66,6 +93,31 @@ public sealed class Plugin : IDalamudPlugin
         PluginInterface.UiBuilder.OpenMainUi += ToggleMainUI;
 
         wardObserver = new WardObserver(this, pluginDataStorage);
+        // AddonLifecycle.RegisterListener(AddonEvent.PreSetup, "HousingSignBoard", OnPreDraw);
+        // AddonLifecycle.RegisterListener(AddonEvent.PostReceiveEvent, "HousingSignBoard", OnPreDraw);
+        // AddonLifecycle.RegisterListener(AddonEvent.PostRequestedUpdate, "HousingSignBoard", OnPreDraw);
+    }
+
+    unsafe private void OnPreDraw(AddonEvent type, AddonArgs args)
+    {
+        // if (!alreadySeen.Contains(args.AddonName))
+        // {
+        //     // AddonRequestedUpdateArgs#stringarraydata
+        //     Log.Info("Received update for: " + args.AddonName);
+        //     alreadySeen.Add(args.AddonName);
+        // }
+        if (args is AddonRequestedUpdateArgs setupArgs)
+        {
+            using var unmanagedMemoryStream = new UnmanagedMemoryStream((byte*)setupArgs.NumberArrayData.ToPointer(), 1024);
+            using var binaryReader = new BinaryReader(unmanagedMemoryStream);
+            var str = Encoding.UTF8.GetString(binaryReader.ReadBytes(1024));
+            Log.Info(str);
+        }
+
+        // if (args.AddonName == "HousingSelectBlock")
+        // {
+            // Log.Info("Received update for: " + args.AddonName);
+        // }
     }
 
     public void Dispose()
@@ -85,7 +137,7 @@ public sealed class Plugin : IDalamudPlugin
     {
         ToggleMainUI();
     }
-    
+
     private void OnVisitListCommand(string command, string args)
     {
         ToggleVisitList();

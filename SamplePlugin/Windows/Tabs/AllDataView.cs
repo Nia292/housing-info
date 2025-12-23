@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using Dalamud.Interface.Utility.Raii;
-using ImGuiNET;
+using Dalamud.Bindings.ImGui;
 using SamplePlugin.Collector;
 using SamplePlugin.Storage;
 
@@ -107,21 +107,29 @@ public class AllDataView
                     }
                     ImGui.PopID();
 
-                    ImGui.PushID("Owner");
-                    ImGui.TableSetColumnIndex(6);
-                    ImGui.TableHeader("Owner");
-                    var ownerFilter = pluginDataStorage.OwnerFilter;
-                    ImGui.InputText("", ref ownerFilter, 20);
-                    if (ownerFilter != pluginDataStorage.OwnerFilter)
+                    InterfaceUtils.WithinId("Owner", () =>
                     {
-                        pluginDataStorage.SetOwnerFilter(ownerFilter);
-                    }
-                    ImGui.PopID();
-
-                    ImGui.PushID("Fav");
-                    ImGui.TableSetColumnIndex(7);
-                    ImGui.TableHeader("Fav");
-                    ImGui.PopID();
+                        ImGui.TableSetColumnIndex(6);
+                        ImGui.TableHeader("Owner");
+                        var ownerFilter = pluginDataStorage.OwnerFilter;
+                        ImGui.InputText("", ref ownerFilter, 20);
+                        if (ownerFilter != pluginDataStorage.OwnerFilter)
+                        {
+                            pluginDataStorage.SetOwnerFilter(ownerFilter);
+                        }
+                    });
+                    
+                    var onlyFavorites = pluginDataStorage.OnlyFavorites;
+                    InterfaceUtils.WithinId("Favorite", () =>
+                    {
+                        ImGui.TableSetColumnIndex(7);
+                        ImGui.TableHeader("Fav");
+                        ImGui.Checkbox("", ref onlyFavorites);
+                        if (onlyFavorites != pluginDataStorage.OnlyFavorites)
+                        {
+                            pluginDataStorage.SetOnlyFavoritesFilter(onlyFavorites);
+                        }
+                    });
                     
                     ImGui.PushID("Visit");
                     ImGui.TableSetColumnIndex(8);
@@ -149,7 +157,7 @@ public class AllDataView
                         ImGui.TableSetColumnIndex(1);
                         ImGui.TextUnformatted(InterfaceUtils.TranslateTerritoryTypeId(house.HouseId.TerritoryTypeId));
                         ImGui.TableSetColumnIndex(2);
-                        ImGui.TextUnformatted(house.HouseId.WardNumber.ToString());
+                        ImGui.TextUnformatted((house.HouseId.WardNumber + 1).ToString());
                         ImGui.TableSetColumnIndex(3);
                         ImGui.TextUnformatted(house.HouseId.PlotNumber.ToString());
                         

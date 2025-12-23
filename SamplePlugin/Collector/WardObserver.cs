@@ -46,6 +46,7 @@ public unsafe class WardObserver {
             housingWardInfoHook!.Original(agentBase, dataPtr);
 
             var result = HouseInfoEntryParser.Parse(dataPtr);
+            // HouseInfoEntryParser.PrintToFile(dataPtr);
             pluginDataStorage.AddInfoEntries(result);
         }
 

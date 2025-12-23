@@ -2,10 +2,9 @@
 using System.Numerics;
 using Dalamud.Interface.Windowing;
 using Dalamud.Plugin.Services;
-using ImGuiNET;
+using Dalamud.Bindings.ImGui;
 using SamplePlugin.Storage;
 using SamplePlugin.Windows.Tabs;
-using ImGui = ImGuiNET.ImGui;
 
 namespace SamplePlugin.Windows;
 

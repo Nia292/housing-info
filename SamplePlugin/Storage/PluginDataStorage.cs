@@ -33,6 +33,8 @@ public class PluginDataStorage
     public short WorldIdFilter = -1;
     [JsonProperty]
     public bool OnlyOpen = false;
+    [JsonProperty]
+    public bool OnlyFavorites = false;
 
     [JsonIgnore]
     public List<HouseInfoEntry> EntriesToDisplay = [];
@@ -140,6 +142,13 @@ public class PluginDataStorage
         Persist();
         RecalculateEntries();
     }
+    
+    public void SetOnlyFavoritesFilter(bool onlyFavorites)
+    {
+        OnlyFavorites = onlyFavorites;
+        Persist();
+        RecalculateEntries();
+    }
 
     public void NextPage()
     {
@@ -224,8 +233,9 @@ public class PluginDataStorage
         var matchingEntry = houseInfoEntries.Find(existingEntry => existingEntry.IsSamePot(newEntry));
         if (matchingEntry != null)
         {
-            houseInfoEntries.Remove(matchingEntry);
-            houseInfoEntries.Add(newEntry);
+            // houseInfoEntries.Remove(matchingEntry);
+            // houseInfoEntries.Add(newEntry);
+            // TODO need to check if meta update is needed
         }
         else
         {
@@ -320,6 +330,15 @@ public class PluginDataStorage
                            if (OnlyOpen)
                            {
                                return entry.IsOpen();
+                           }
+
+                           return true;
+                       })
+                       .Where(entry =>
+                       {
+                           if (OnlyFavorites)
+                           {
+                               return entry.Favorite;
                            }
 
                            return true;

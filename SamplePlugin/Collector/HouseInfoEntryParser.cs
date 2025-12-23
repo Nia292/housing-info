@@ -7,6 +7,21 @@ namespace SamplePlugin.Collector;
 
 public static class HouseInfoEntryParser
 {
+
+    public static unsafe void PrintToFile(IntPtr dataPtr)
+    {
+        var length = 2664 * 10;
+        using var unmanagedMemoryStream = new UnmanagedMemoryStream((byte*)dataPtr.ToPointer(), length);
+        using var binaryReader = new BinaryReader(unmanagedMemoryStream);
+        var str = Encoding.UTF8.GetString(binaryReader.ReadBytes(length));
+        string docPath =
+            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+        using (StreamWriter outputFile = new StreamWriter(Path.Combine(docPath, "WriteLines.txt")))
+        {
+            outputFile.WriteLine(str);
+        }
+    }
+    
     // From PaissaHouse: https://github.com/zhudotexe/FFXIV_PaissaHouse
     public static unsafe List<HouseInfoEntry> Parse(IntPtr dataPtr)
     {

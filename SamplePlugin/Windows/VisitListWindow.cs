@@ -2,7 +2,7 @@
 using System.Numerics;
 using Dalamud.Interface.Utility.Raii;
 using Dalamud.Interface.Windowing;
-using ImGuiNET;
+using Dalamud.Bindings.ImGui;
 using SamplePlugin.Storage;
 
 namespace SamplePlugin.Windows;
@@ -36,9 +36,18 @@ public class VisitListWindow : Window, IDisposable
                 var world = InterfaceUtils.TranslateWorld(entry.HouseId.WorldId);
                 var ward = InterfaceUtils.TranslateTerritoryTypeId(entry.HouseId.TerritoryTypeId);
                 ImGui.PushID(entry.HouseId.ToString());
-                ImGui.TextUnformatted($"{world} - {ward} - W{entry.HouseId.WardNumber} P{entry.HouseId.PlotNumber} ({entry.HouseMetaData.EstateOwnerName})");
+                ImGui.TextUnformatted($"{world} - {ward} - W{entry.HouseId.WardNumber + 1} P{entry.HouseId.PlotNumber} ({entry.HouseMetaData.EstateOwnerName})");
+                if (!entry.Favorite)
+                {
+                    ImGui.SameLine();
+                    ImGui.SetCursorPosX(ImGui.GetWindowSize().X - ImGui.CalcTextSize("Visited").X - 30 - ImGui.CalcTextSize("Favorite").X);
+                    if (ImGui.Button("Favorite"))
+                    {
+                        pluginDataStorage.MarkFavorite(entry.HouseId, true);
+                    }
+                }
                 ImGui.SameLine();
-                ImGui.SetCursorPosX(ImGui.GetWindowSize().X - ImGui.CalcTextSize("Visited").X - 20);
+                ImGui.SetCursorPosX(ImGui.GetWindowSize().X - ImGui.CalcTextSize("Favorite").X - 10);
                 if (ImGui.Button("Visited"))
                 {
                     pluginDataStorage.MarkVisit(entry.HouseId, false);
