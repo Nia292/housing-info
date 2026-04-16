@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using Newtonsoft.Json;
 
-namespace SamplePlugin.Collector;
+namespace HousingDatabase.Collector;
 
 public class HouseInfoEntry
 {

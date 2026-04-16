@@ -1,4 +1,4 @@
-﻿namespace SamplePlugin.Collector;
+﻿namespace HousingDatabase.Collector;
 
 public enum HousingFlags : byte {
     PlotOwned = 1 << 0,

@@ -1,4 +1,4 @@
-﻿namespace SamplePlugin.Collector;
+﻿namespace HousingDatabase.Collector;
 
 public enum HousingTag
 {

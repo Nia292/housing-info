@@ -3,10 +3,10 @@ using System.Numerics;
 using Dalamud.Interface.Windowing;
 using Dalamud.Plugin.Services;
 using Dalamud.Bindings.ImGui;
-using SamplePlugin.Storage;
-using SamplePlugin.Windows.Tabs;
+using HousingDatabase.Storage;
+using HousingDatabase.Windows.Tabs;
 
-namespace SamplePlugin.Windows;
+namespace HousingDatabase.Windows;
 
 public class MainWindow : Window, IDisposable
 {

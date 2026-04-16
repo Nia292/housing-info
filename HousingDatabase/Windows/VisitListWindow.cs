@@ -3,9 +3,9 @@ using System.Numerics;
 using Dalamud.Interface.Utility.Raii;
 using Dalamud.Interface.Windowing;
 using Dalamud.Bindings.ImGui;
-using SamplePlugin.Storage;
+using HousingDatabase.Storage;
 
-namespace SamplePlugin.Windows;
+namespace HousingDatabase.Windows;
 
 public class VisitListWindow : Window, IDisposable
 {

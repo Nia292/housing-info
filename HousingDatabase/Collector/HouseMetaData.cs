@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace SamplePlugin.Collector;
+namespace HousingDatabase.Collector;
 
 public class HouseMetaData
 {

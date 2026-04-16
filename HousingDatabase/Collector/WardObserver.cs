@@ -6,11 +6,11 @@ using Dalamud.Hooking;
 using Dalamud.Plugin.Services;
 using Dalamud.Utility.Signatures;
 using Newtonsoft.Json;
-using SamplePlugin.Storage;
+using HousingDatabase.Storage;
 using static System.Text.Encoding;
 using Convert = System.Convert;
 
-namespace SamplePlugin.Collector;
+namespace HousingDatabase.Collector;
 
 public unsafe class WardObserver {
     private readonly PluginDataStorage pluginDataStorage;

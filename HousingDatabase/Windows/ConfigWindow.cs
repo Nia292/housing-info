@@ -5,7 +5,7 @@ using Dalamud.Bindings.ImGui;
 using Dalamud.Plugin.Services;
 using Serilog;
 
-namespace SamplePlugin.Windows;
+namespace HousingDatabase.Windows;
 
 public class ConfigWindow : Window, IDisposable
 {

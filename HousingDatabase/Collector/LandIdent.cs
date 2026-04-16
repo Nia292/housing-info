@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace SamplePlugin.Collector;
+namespace HousingDatabase.Collector;
 
 public class LandIdent {
     public short LandId;

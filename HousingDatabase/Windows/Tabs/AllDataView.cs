@@ -4,10 +4,10 @@ using System.Linq;
 using System.Numerics;
 using Dalamud.Interface.Utility.Raii;
 using Dalamud.Bindings.ImGui;
-using SamplePlugin.Collector;
-using SamplePlugin.Storage;
+using HousingDatabase.Collector;
+using HousingDatabase.Storage;
 
-namespace SamplePlugin.Windows.Tabs;
+namespace HousingDatabase.Windows.Tabs;
 
 public class AllDataView
 {

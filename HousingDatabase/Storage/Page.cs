@@ -1,4 +1,4 @@
-﻿namespace SamplePlugin.Storage;
+﻿namespace HousingDatabase.Storage;
 
 public class PaginationInfo
 {

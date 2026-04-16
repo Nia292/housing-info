@@ -1,7 +1,7 @@
 ﻿using System;
 using Newtonsoft.Json;
 
-namespace SamplePlugin.Collector;
+namespace HousingDatabase.Collector;
 
 public class HouseId(short worldId, short territoryTypeId, short wardNumber, int plotNumber)
 {

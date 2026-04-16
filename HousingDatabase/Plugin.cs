@@ -12,11 +12,11 @@ using Dalamud.Utility;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using FFXIVClientStructs.FFXIV.Client.UI.Misc;
 using FFXIVClientStructs.FFXIV.Component.GUI;
-using SamplePlugin.Collector;
-using SamplePlugin.Storage;
-using SamplePlugin.Windows;
+using HousingDatabase.Collector;
+using HousingDatabase.Storage;
+using HousingDatabase.Windows;
 
-namespace SamplePlugin;
+namespace HousingDatabase;
 
 public sealed class Plugin : IDalamudPlugin
 {
@@ -54,7 +54,7 @@ public sealed class Plugin : IDalamudPlugin
 
     public Configuration Configuration { get; init; }
 
-    public readonly WindowSystem WindowSystem = new("SamplePlugin");
+    public readonly WindowSystem WindowSystem = new("HousingDatabase");
     private ConfigWindow ConfigWindow { get; init; }
     private MainWindow MainWindow { get; init; }
     private VisitListWindow VisitListWindow { get; init; }

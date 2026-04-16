@@ -3,7 +3,7 @@ using Dalamud.Plugin;
 using System;
 using Dalamud.Utility;
 
-namespace SamplePlugin;
+namespace HousingDatabase;
 
 [Serializable]
 public class Configuration : IPluginConfiguration

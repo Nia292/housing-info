@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace SamplePlugin.Collector;
+namespace HousingDatabase.Collector;
 
 public static class HouseInfoEntryParser
 {

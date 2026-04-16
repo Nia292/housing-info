@@ -1,10 +1,10 @@
 ﻿using System;
 using Dalamud.Bindings.ImGui;
 using Lumina.Excel.Sheets;
-using SamplePlugin.Collector;
+using HousingDatabase.Collector;
 using Action = System.Action;
 
-namespace SamplePlugin.Windows;
+namespace HousingDatabase.Windows;
 
 public static class InterfaceUtils
 {
