@@ -2,6 +2,7 @@
 using Dalamud.Plugin;
 using System;
 using Dalamud.Utility;
+using HousingDatabase.Collector;
 
 namespace HousingDatabase;
 
@@ -33,5 +34,15 @@ public class Configuration : IPluginConfiguration
         }
 
         return "https://" + RemoteServer + "/api/update";
+    }
+    
+    public string RemoteUpdateGreetingUri(HouseId house)
+    {
+        if (RemoteServer.Contains("localhost"))
+        {
+            return $"http://{RemoteServer}:8080/api/updated/{house.WorldId}/{house.TerritoryTypeId}/{house.WardNumber}/{house.PlotNumber}";
+        }
+
+        return $"https://{RemoteServer}/api/updated/{house.WorldId}/{house.TerritoryTypeId}/{house.WardNumber}/{house.PlotNumber}";
     }
 }
