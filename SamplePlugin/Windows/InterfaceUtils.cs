@@ -15,6 +15,32 @@ public static class InterfaceUtils
         action();
         ImGui.PopID();
     }
+
+    public static short ResolveTerritoryId(string name)
+    {
+        if (name.Equals("The Goblet", StringComparison.OrdinalIgnoreCase))
+        {
+            return 341;
+        }
+        if (name.Equals("The Lavender Beds", StringComparison.OrdinalIgnoreCase))
+        {
+            return 340;
+        }
+        if (name.Equals("Mist", StringComparison.OrdinalIgnoreCase))
+        {
+            return 339;
+        }
+        if (name.Equals("Empyreum", StringComparison.OrdinalIgnoreCase))
+        {
+            return 979;
+        }
+        if (name.Equals("Shirogane", StringComparison.OrdinalIgnoreCase))
+        {
+            return 641;
+        }
+
+        return -1;
+    }
     
     public static string TranslateTerritoryTypeId(short landId)
     {
@@ -41,6 +67,11 @@ public static class InterfaceUtils
         if (landId == 979)
         {
             return "Empyreum";
+        }
+        
+        if (landId == 641)
+        {
+            return "Shirogane";
         }
         return landId.ToString();
     }

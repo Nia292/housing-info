@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using Dalamud.IoC;
 using Dalamud.Plugin.Services;
+using Dalamud.Utility;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using Newtonsoft.Json;
 using SamplePlugin.Collector;
@@ -26,6 +27,8 @@ public class PluginDataStorage
     public HousingTag? TagFilter3 { get; private set; }
     [JsonProperty]
     public string OwnerFilter = "";
+    [JsonProperty]
+    public string GreetingFilter = "";
     [JsonProperty]
     public short? WardFilter = -1;
     public short? WardNumberFilter = null;
@@ -59,6 +62,18 @@ public class PluginDataStorage
         entries.ForEach(AddToEntries);
         Persist();
         RecalculateEntries();
+    }
+
+    public void AddGreeting(HouseId houseId, String greeting)
+    {
+        var matchingEntry = houseInfoEntries.Find(existingEntry => existingEntry.IsSamePlot(houseId));
+        if (matchingEntry != null)
+        {
+            matchingEntry.Greeting = greeting;
+        }
+        Persist();
+        RecalculateEntries();
+        log.Info($"[{houseId}] Added greeting {greeting}");
     }
 
     public void SetTagFilter(HousingTag? filter)
@@ -124,6 +139,13 @@ public class PluginDataStorage
     public void SetOwnerFilter(string ownerFilter)
     {
         OwnerFilter = ownerFilter;
+        Persist();
+        RecalculateEntries();
+    }
+    
+    public void SetGreetingFilter(string greetingFIlter)
+    {
+        GreetingFilter = greetingFIlter;
         Persist();
         RecalculateEntries();
     }
@@ -230,12 +252,10 @@ public class PluginDataStorage
 
     private void AddToEntries(HouseInfoEntry newEntry)
     {
-        var matchingEntry = houseInfoEntries.Find(existingEntry => existingEntry.IsSamePot(newEntry));
+        var matchingEntry = houseInfoEntries.Find(existingEntry => existingEntry.IsSamePlot(newEntry));
         if (matchingEntry != null)
         {
-            // houseInfoEntries.Remove(matchingEntry);
-            // houseInfoEntries.Add(newEntry);
-            // TODO need to check if meta update is needed
+            matchingEntry.HouseMetaData = newEntry.HouseMetaData;
         }
         else
         {
@@ -302,6 +322,20 @@ public class PluginDataStorage
         var filtered = houseInfoEntries
                        .Where(entry => entry.HouseMetaData.EstateOwnerName.ToLower()
                                             .Contains(OwnerFilter.ToLower()))
+                       .Where(entry =>
+                       {
+                           if (GreetingFilter.IsNullOrEmpty())
+                           {
+                               return true;
+                           }
+
+                           if (entry.Greeting.IsNullOrEmpty())
+                           {
+                               return false;
+                           }
+                           
+                           return entry.Greeting.ToLower().Contains(GreetingFilter.ToLower());
+                       })
                        .Where(entry =>
                        {
                            bool hasTag1 = TagFilter == null || entry.HasTag(TagFilter);

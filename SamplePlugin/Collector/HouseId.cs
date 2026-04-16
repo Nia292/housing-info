@@ -34,6 +34,6 @@ public class HouseId(short worldId, short territoryTypeId, short wardNumber, int
 
     public override string ToString()
     {
-        return $"${WorldId}-{TerritoryTypeId}-{WardNumber}-{PlotNumber}";
+        return $"{WorldId}-{TerritoryTypeId}-{WardNumber}-{PlotNumber}";
     }
 }

@@ -2,23 +2,20 @@
 using System.Numerics;
 using Dalamud.Interface.Windowing;
 using Dalamud.Bindings.ImGui;
+using Dalamud.Plugin.Services;
+using Serilog;
 
 namespace SamplePlugin.Windows;
 
 public class ConfigWindow : Window, IDisposable
 {
     private Configuration Configuration;
+    private IPluginLog Log;
 
-    // We give this window a constant ID using ###
-    // This allows for labels being dynamic, like "{FPS Counter}fps###XYZ counter window",
-    // and the window ID will always be "###XYZ counter window" for ImGui
-    public ConfigWindow(Plugin plugin) : base("A Wonderful Configuration Window###With a constant ID")
+    public ConfigWindow(Plugin plugin, IPluginLog log) : base("Housing Configuration")
     {
-        Flags = ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar |
-                ImGuiWindowFlags.NoScrollWithMouse;
-
-        Size = new Vector2(232, 90);
-        SizeCondition = ImGuiCond.Always;
+        Size = new Vector2(400, 90);
+        Log = log;
 
         Configuration = plugin.Configuration;
     }
@@ -27,32 +24,20 @@ public class ConfigWindow : Window, IDisposable
 
     public override void PreDraw()
     {
-        // Flags must be added or removed before Draw() is being called, or they won't apply
-        if (Configuration.IsConfigWindowMovable)
-        {
-            Flags &= ~ImGuiWindowFlags.NoMove;
-        }
-        else
-        {
-            Flags |= ImGuiWindowFlags.NoMove;
-        }
     }
 
     public override void Draw()
     {
-        // can't ref a property, so use a local copy
-        var configValue = Configuration.SomePropertyToBeSavedAndWithADefault;
-        if (ImGui.Checkbox("Random Config Bool", ref configValue))
-        {
-            Configuration.SomePropertyToBeSavedAndWithADefault = configValue;
-            // can save immediately on change, if you don't want to provide a "Save and Close" button
-            Configuration.Save();
-        }
+        var remoteServer = Configuration.RemoteServer;
+        ImGui.InputText("Remote Server", ref remoteServer, 200);
 
-        var movable = Configuration.IsConfigWindowMovable;
-        if (ImGui.Checkbox("Movable Config Window", ref movable))
+        var remoteKey = Configuration.RemoteKey;
+        ImGui.InputText("Remote Key", ref remoteKey, 200);
+        
+        if (remoteServer != Configuration.RemoteServer || remoteKey != Configuration.RemoteKey)
         {
-            Configuration.IsConfigWindowMovable = movable;
+            Configuration.RemoteServer = remoteServer;
+            Configuration.RemoteKey = remoteKey;
             Configuration.Save();
         }
     }

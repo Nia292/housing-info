@@ -47,6 +47,7 @@ public class AllDataView
                     ImGui.TableSetupColumn("Owner", ImGuiTableColumnFlags.WidthFixed, 200);
                     ImGui.TableSetupColumn("Fav", ImGuiTableColumnFlags.WidthFixed, 25);
                     ImGui.TableSetupColumn("Visit", ImGuiTableColumnFlags.WidthFixed, 25);
+                    ImGui.TableSetupColumn("Greeting", ImGuiTableColumnFlags.WidthFixed, 400);
                     ImGui.TableSetupColumn("Comment", ImGuiTableColumnFlags.WidthFixed, 400);
                     ImGui.TableNextRow(ImGuiTableRowFlags.Headers);
 
@@ -135,9 +136,22 @@ public class AllDataView
                     ImGui.TableSetColumnIndex(8);
                     ImGui.TableHeader("Visit");
                     ImGui.PopID();
+                    
+                    InterfaceUtils.WithinId("Greeting", () =>
+                    {
+                        ImGui.TableSetColumnIndex(9);
+                        ImGui.TableHeader("Greeting");
+                        var greetingFilter = pluginDataStorage.GreetingFilter;
+                        ImGui.InputText("", ref greetingFilter, 20);
+                        if (greetingFilter != pluginDataStorage.GreetingFilter)
+                        {
+                            pluginDataStorage.SetGreetingFilter(greetingFilter);
+                        }
+                    });
+
 
                     ImGui.PushID("Comment");
-                    ImGui.TableSetColumnIndex(9);
+                    ImGui.TableSetColumnIndex(10);
                     ImGui.TableHeader("Comment");
                     ImGui.PopID();
 
@@ -190,8 +204,15 @@ public class AllDataView
                         {
                             pluginDataStorage.MarkVisit(house.HouseId, visit);
                         }
-
+                        
                         ImGui.TableSetColumnIndex(9);
+                        var greeting = house.Greeting;
+                        ImGui.PushID("-greeting");
+                        ImGui.SetNextItemWidth(400);
+                        ImGui.TextWrapped(greeting);
+                        ImGui.PopID();
+
+                        ImGui.TableSetColumnIndex(10);
                         var comment = house.Comment;
                         ImGui.PushID("-comment-input");
                         ImGui.SetNextItemWidth(400);

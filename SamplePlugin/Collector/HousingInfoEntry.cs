@@ -14,11 +14,17 @@ public class HouseInfoEntry
     public bool Favorite;
     public bool Visit;
     public string Comment = "";
+    public string Greeting = "";
 
 
-    public bool IsSamePot(HouseInfoEntry other)
+    public bool IsSamePlot(HouseInfoEntry other)
     {
         return Equals(HouseId, other.HouseId);
+    }
+    
+    public bool IsSamePlot(HouseId other)
+    {
+        return Equals(HouseId, other);
     }
 
     public override string ToString()

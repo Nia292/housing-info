@@ -1,14 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using Dalamud.Game.Addon.Lifecycle;
 using Dalamud.Game.Addon.Lifecycle.AddonArgTypes;
 using Dalamud.Game.Command;
 using Dalamud.Interface.Windowing;
 using Dalamud.IoC;
+using Dalamud.Memory;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
+using Dalamud.Utility;
+using FFXIVClientStructs.FFXIV.Client.Game.UI;
+using FFXIVClientStructs.FFXIV.Client.UI.Misc;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using SamplePlugin.Collector;
 using SamplePlugin.Storage;
@@ -43,6 +45,9 @@ public sealed class Plugin : IDalamudPlugin
     internal static IAddonLifecycle AddonLifecycle { get; private set; } = null!;
     [PluginService]
     internal static IAddonEventManager EventManager { get; private set; } = null!;
+    
+    [PluginService]
+    internal static IObjectTable ObjectTable { get; private set; } = null!;
 
     private const string CommandName = "/houses";
     private const string CommandNameVisitList = "/visitlist";
@@ -64,7 +69,7 @@ public sealed class Plugin : IDalamudPlugin
         pluginDataStorage = PluginDataStorage.Instantiate(Log);
         Configuration = PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
 
-        ConfigWindow = new ConfigWindow(this);
+        ConfigWindow = new ConfigWindow(this, Log);
         MainWindow = new MainWindow(this, pluginDataStorage, Log);
         VisitListWindow = new VisitListWindow(this, pluginDataStorage);
 
@@ -92,32 +97,32 @@ public sealed class Plugin : IDalamudPlugin
         // Adds another button that is doing the same but for the main ui of the plugin
         PluginInterface.UiBuilder.OpenMainUi += ToggleMainUI;
 
-        wardObserver = new WardObserver(this, pluginDataStorage);
-        // AddonLifecycle.RegisterListener(AddonEvent.PreSetup, "HousingSignBoard", OnPreDraw);
-        // AddonLifecycle.RegisterListener(AddonEvent.PostReceiveEvent, "HousingSignBoard", OnPreDraw);
-        // AddonLifecycle.RegisterListener(AddonEvent.PostRequestedUpdate, "HousingSignBoard", OnPreDraw);
+        wardObserver = new WardObserver(pluginDataStorage, Configuration, Log);
+        AddonLifecycle.RegisterListener(AddonEvent.PostRequestedUpdate, "HousingSignBoard", OnPreDraw);
     }
 
-    unsafe private void OnPreDraw(AddonEvent type, AddonArgs args)
+    private unsafe void OnPreDraw(AddonEvent type, AddonArgs args)
     {
-        // if (!alreadySeen.Contains(args.AddonName))
-        // {
-        //     // AddonRequestedUpdateArgs#stringarraydata
-        //     Log.Info("Received update for: " + args.AddonName);
-        //     alreadySeen.Add(args.AddonName);
-        // }
-        if (args is AddonRequestedUpdateArgs setupArgs)
-        {
-            using var unmanagedMemoryStream = new UnmanagedMemoryStream((byte*)setupArgs.NumberArrayData.ToPointer(), 1024);
-            using var binaryReader = new BinaryReader(unmanagedMemoryStream);
-            var str = Encoding.UTF8.GetString(binaryReader.ReadBytes(1024));
-            Log.Info(str);
-        }
+        var addon = (AtkUnitBase*)args.Addon.Address;
+        var greetingAddr = addon->GetTextNodeById(28);
+        if (greetingAddr != null) {
+            var greetingText = MemoryHelper.ReadSeString(&greetingAddr->NodeText).TextValue;
+            var plotTextAddr = addon->GetTextNodeById(21);
+            if (plotTextAddr != null) {
+                var plotText = MemoryHelper.ReadSeString(&plotTextAddr->NodeText).TextValue;
+                var split = plotText.Split(",");
+                if (split.Length == 3)
+                {
+                    int.TryParse(split[0].Split(" ")[1], out var plot);
+                    short.TryParse(Regex.Match(split[1].Trim(), @"(\d*).*").Groups[1].Value, out var ward);
+                    var location = Regex.Match(split[2].Trim(), @"([\w|\s]*) \(.*").Groups[1].Value;
+                    var houseId = new HouseId((short) ObjectTable.LocalPlayer.CurrentWorld.RowId, InterfaceUtils.ResolveTerritoryId(location), (short)(ward - 1), plot);
+                    Log.Info("HouseId: " + houseId);
+                    pluginDataStorage.AddGreeting(houseId, greetingText);
+                }
+            }
 
-        // if (args.AddonName == "HousingSelectBlock")
-        // {
-            // Log.Info("Received update for: " + args.AddonName);
-        // }
+        }
     }
 
     public void Dispose()
