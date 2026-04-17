@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Text.RegularExpressions;
 using Dalamud.Game.Addon.Lifecycle;
 using Dalamud.Game.Addon.Lifecycle.AddonArgTypes;
 using Dalamud.Game.Command;
+using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Interface.Windowing;
 using Dalamud.IoC;
 using Dalamud.Memory;
@@ -115,8 +117,11 @@ public sealed class Plugin : IDalamudPlugin
                         var houseId = new HouseId((short)ObjectTable.LocalPlayer.CurrentWorld.RowId,
                                                   InterfaceUtils.ResolveTerritoryId(location), (short)(ward - 1), plot);
                         Log.Info("HouseId: " + houseId);
-                        pluginDataStorage.AddGreeting(houseId, greetingText);
-                        housingDataPusher.PushGreeting(houseId, greetingText);
+                        if (houseId.TerritoryTypeId > 0)
+                        {
+                            pluginDataStorage.AddGreeting(houseId, greetingText);
+                            housingDataPusher.PushGreeting(houseId, greetingText);
+                        }
                     }
                 }
             }
