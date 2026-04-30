@@ -1,16 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Text.RegularExpressions;
 using Dalamud.Game.Addon.Lifecycle;
 using Dalamud.Game.Addon.Lifecycle.AddonArgTypes;
 using Dalamud.Game.Command;
-using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Interface.Windowing;
 using Dalamud.IoC;
-using Dalamud.Memory;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
+using Dalamud.Utility;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using HousingDatabase.Collector;
 using HousingDatabase.Storage;
@@ -103,11 +101,11 @@ public sealed class Plugin : IDalamudPlugin
             var greetingAddr = addon->GetTextNodeById(28);
             if (greetingAddr != null)
             {
-                var greetingText = MemoryHelper.ReadSeString(&greetingAddr->NodeText).TextValue;
+                var greetingText = greetingAddr->NodeText.AsReadOnlySeString().ExtractText();
                 var plotTextAddr = addon->GetTextNodeById(21);
                 if (plotTextAddr != null)
                 {
-                    var plotText = MemoryHelper.ReadSeString(&plotTextAddr->NodeText).TextValue;
+                    var plotText = plotTextAddr->NodeText.AsReadOnlySeString().ExtractText();
                     var split = plotText.Split(",");
                     if (split.Length == 3)
                     {
